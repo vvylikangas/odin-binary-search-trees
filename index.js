@@ -82,7 +82,18 @@ class Tree {
     this.root = recursiveDelete(this.root, value); // ensure tree remains updated
   }
 
-  find(value) {}
+  find(value) {
+    function recursiveSearch(root, value) {
+      if (root === null || root.data === value) return root;
+
+      if (value > root.data) {
+        return recursiveSearch(root.right, value);
+      }
+
+      return recursiveSearch(root.left, value);
+    }
+    return recursiveSearch(this.root, value);
+  }
 }
 
 // helper function to visualize the tree
@@ -101,19 +112,17 @@ const prettyPrint = (node, prefix = '', isLeft = true) => {
 // Example usage
 const myTree = new Tree([1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324]);
 
-// Print the tree
-prettyPrint(myTree.root);
-
 // Testing
-myTree.insert(90);
-prettyPrint(myTree.root);
-console.log('--------');
-myTree.insert(2);
-prettyPrint(myTree.root);
-console.log('--------');
-myTree.deleteItem(2);
-prettyPrint(myTree.root);
-console.log('--------');
-myTree.deleteItem(4);
-prettyPrint(myTree.root);
-console.log('--------');
+console.log(myTree.find(8));
+// myTree.insert(90);
+// prettyPrint(myTree.root);
+// console.log('--------');
+// myTree.insert(2);
+// prettyPrint(myTree.root);
+// console.log('--------');
+// myTree.deleteItem(2);
+// prettyPrint(myTree.root);
+// console.log('--------');
+// myTree.deleteItem(4);
+// prettyPrint(myTree.root);
+// console.log('--------');
