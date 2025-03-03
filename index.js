@@ -47,7 +47,40 @@ class Tree {
     this.root = recursiveInsert(this.root, value);
   }
 
-  deleteItem(value) {}
+  deleteItem(value) {
+    function getSuccessor(curr) {
+      curr = curr.right;
+      while (curr !== null && curr.left !== null) {
+        curr = curr.left;
+      }
+      return curr;
+    }
+
+    function recursiveDelete(root, value) {
+      if (root === null) return root;
+
+      if (value < root.data) {
+        root.left = recursiveDelete(root.left, value);
+      } else if (value > root.data) {
+        root.right = recursiveDelete(root.right, value);
+      } else {
+        // Case: Found the node to delete
+
+        // Case 1 & 2: No child or only one child
+        if (root.left === null) return root.right;
+        if (root.right === null) return root.left;
+
+        // Case 3: Node with two children
+        let succ = getSuccessor(root);
+        root.data = succ.data; // copy successor's value
+        root.right = recursiveDelete(root.right, succ.data); // delete successor node
+      }
+
+      return root;
+    }
+
+    this.root = recursiveDelete(this.root, value); // ensure tree remains updated
+  }
 
   find(value) {}
 }
@@ -74,5 +107,13 @@ prettyPrint(myTree.root);
 // Testing
 myTree.insert(90);
 prettyPrint(myTree.root);
+console.log('--------');
 myTree.insert(2);
 prettyPrint(myTree.root);
+console.log('--------');
+myTree.deleteItem(2);
+prettyPrint(myTree.root);
+console.log('--------');
+myTree.deleteItem(4);
+prettyPrint(myTree.root);
+console.log('--------');
