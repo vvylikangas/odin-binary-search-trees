@@ -30,9 +30,29 @@ class Tree {
 
     return constructBST(sortedArray, 0, sortedArray.length - 1);
   }
+
+  insert(value) {
+    function recursiveInsert(root, value) {
+      if (root === null) return new Node(value);
+
+      if (value < root.data) {
+        root.left = recursiveInsert(root.left, value);
+      } else if (value > root.data) {
+        root.right = recursiveInsert(root.right, value);
+      }
+
+      return root;
+    }
+
+    this.root = recursiveInsert(this.root, value);
+  }
+
+  deleteItem(value) {}
+
+  find(value) {}
 }
 
-// helper to visualize tree
+// helper function to visualize the tree
 const prettyPrint = (node, prefix = '', isLeft = true) => {
   if (node === null) return;
 
@@ -49,4 +69,10 @@ const prettyPrint = (node, prefix = '', isLeft = true) => {
 const myTree = new Tree([1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324]);
 
 // Print the tree
+prettyPrint(myTree.root);
+
+// Testing
+myTree.insert(90);
+prettyPrint(myTree.root);
+myTree.insert(2);
 prettyPrint(myTree.root);
