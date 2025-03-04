@@ -100,13 +100,12 @@ class Tree {
       throw new Error('A callback function is required.');
     }
 
-    // Iterative
-    const queue = [this.root];
-    while (queue.length > 0) {
-      const node = queue.shift();
+    const stack = [this.root];
+    while (stack.length > 0) {
+      const node = stack.shift();
       callback(node);
-      if (node.left) queue.push(node.left);
-      if (node.right) queue.push(node.right);
+      if (node.left) stack.push(node.left);
+      if (node.right) stack.push(node.right);
     }
   }
 
@@ -119,6 +118,54 @@ class Tree {
     for (let level = 1; level <= treeHeight; level++) {
       this._processLevel(this.root, level, callback);
     }
+  }
+
+  inOrder(callback) {
+    if (typeof callback !== 'function') {
+      throw new Error('A callback function is required.');
+    }
+
+    this._inOrder(this.root, callback);
+  }
+
+  _inOrder(node, callback) {
+    if (node === null) return;
+
+    this._inOrder(node.left, callback);
+    callback(node);
+    this._inOrder(node.right, callback);
+  }
+
+  preOrder(callback) {
+    if (typeof callback !== 'function') {
+      throw new Error('A callback function is required.');
+    }
+
+    this._preOrder(this.root, callback);
+  }
+
+  _preOrder(node, callback) {
+    if (node === null) return;
+
+    callback(node);
+    this._preOrder(node.left, callback);
+    this._preOrder(node.right, callback);
+  }
+
+  postOrder(callback) {
+    if (typeof callback !== 'function') {
+      throw new Error('A callback function is required.');
+    }
+
+    this._postOrder(this.root, callback);
+  }
+
+  _postOrder(node, callback) {
+    if (node === null) return;
+
+    this._postOrder(node.left, callback);
+    this._postOrder(node.right, callback);
+    callback(node);
   }
 
   // private helper to get treeHeight
@@ -173,4 +220,10 @@ prettyPrint(myTree.root);
 // myTree.deleteItem(4);
 // prettyPrint(myTree.root);
 // console.log('--------');
-myTree.levelOrder(myTree.printNode);
+// myTree.levelOrder(myTree.printNode);
+myTree.inOrder(myTree.printNode);
+console.log('--------');
+myTree.preOrder(myTree.printNode);
+console.log('--------');
+myTree.postOrder(myTree.printNode);
+// console.log('--------');
