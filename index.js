@@ -94,6 +94,53 @@ class Tree {
     }
     return recursiveSearch(this.root, value);
   }
+
+  levelOrder(callback) {
+    if (typeof callback !== 'function') {
+      throw new Error('A callback function is required.');
+    }
+
+    // Iterative
+    const queue = [this.root];
+    while (queue.length > 0) {
+      const node = queue.shift();
+      callback(node);
+      if (node.left) queue.push(node.left);
+      if (node.right) queue.push(node.right);
+    }
+  }
+
+  levelOrderRecursive(callback) {
+    if (typeof callback !== 'function') {
+      throw new Error('A callback function is required.');
+    }
+
+    let treeHeight = this._height(this.root);
+    for (let level = 1; level <= treeHeight; level++) {
+      this._processLevel(this.root, level, callback);
+    }
+  }
+
+  // private helper to get treeHeight
+  _height(node) {
+    if (node === null) return 0;
+    return 1 + Math.max(this._height(node.left), this._height(node.right));
+  }
+
+  // private helper for recursion
+  _processLevel(node, level, callback) {
+    if (node === null) return;
+    if (level === 1) callback(node);
+    else {
+      this._processLevel(node.left, level - 1, callback);
+      this._processLevel(node.right, level - 1, callback);
+    }
+  }
+
+  // callback function for levelOrder
+  printNode = (node) => {
+    console.log(node.data);
+  };
 }
 
 // helper function to visualize the tree
@@ -113,9 +160,9 @@ const prettyPrint = (node, prefix = '', isLeft = true) => {
 const myTree = new Tree([1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324]);
 
 // Testing
-console.log(myTree.find(8));
+// console.log(myTree.find(8));
 // myTree.insert(90);
-// prettyPrint(myTree.root);
+prettyPrint(myTree.root);
 // console.log('--------');
 // myTree.insert(2);
 // prettyPrint(myTree.root);
@@ -126,3 +173,4 @@ console.log(myTree.find(8));
 // myTree.deleteItem(4);
 // prettyPrint(myTree.root);
 // console.log('--------');
+myTree.levelOrder(myTree.printNode);
