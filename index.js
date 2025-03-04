@@ -14,85 +14,85 @@ class Tree {
   buildTree(array) {
     // remove dublicates and sort in ascending order
     const sortedArray = [...new Set(array)].sort((a, b) => a - b);
+    return this._buildTree(sortedArray, 0, sortedArray.length - 1);
+  }
 
-    // build the tree using recursion
-    function constructBST(arr, start, end) {
-      if (start > end) return null;
+  // build the tree using recursion
+  _buildTree(arr, start, end) {
+    if (start > end) return null;
 
-      const mid = Math.floor((start + end) / 2);
-      const node = new Node(arr[mid]);
+    const mid = Math.floor((start + end) / 2);
+    const node = new Node(arr[mid]);
 
-      node.left = constructBST(arr, start, mid - 1);
-      node.right = constructBST(arr, mid + 1, end);
+    node.left = this._buildTree(arr, start, mid - 1);
+    node.right = this._buildTree(arr, mid + 1, end);
 
-      return node;
-    }
-
-    return constructBST(sortedArray, 0, sortedArray.length - 1);
+    return node;
   }
 
   insert(value) {
-    function recursiveInsert(root, value) {
-      if (root === null) return new Node(value);
+    this.root = this._insert(this.root, value);
+  }
 
-      if (value < root.data) {
-        root.left = recursiveInsert(root.left, value);
-      } else if (value > root.data) {
-        root.right = recursiveInsert(root.right, value);
-      }
+  _insert(node, value) {
+    if (node === null) return new Node(value);
 
-      return root;
+    if (value < node.data) {
+      node.left = this._insert(node.left, value);
+    } else if (value > node.data) {
+      node.right = this._insert(node.right, value);
     }
 
-    this.root = recursiveInsert(this.root, value);
+    return node;
   }
 
   deleteItem(value) {
-    function getSuccessor(curr) {
-      curr = curr.right;
-      while (curr !== null && curr.left !== null) {
-        curr = curr.left;
-      }
-      return curr;
+    this.root = this._deleteItem(this.root, value); // ensure tree remains updated
+  }
+
+  _deleteItem(node, value) {
+    if (node === null) return node;
+
+    if (value < node.data) {
+      node.left = this._deleteItem(node.left, value);
+    } else if (value > node.data) {
+      node.right = this._deleteItem(node.right, value);
+    } else {
+      // Case: Found the node to delete
+
+      // Case 1 & 2: No child or only one child
+      if (node.left === null) return node.right;
+      if (node.right === null) return node.left;
+
+      // Case 3: Node with two children
+      let succ = this._getSuccessor(node);
+      node.data = succ.data; // copy successor's value
+      node.right = this._deleteItem(node.right, succ.data); // delete successor node
     }
 
-    function recursiveDelete(root, value) {
-      if (root === null) return root;
+    return node;
+  }
 
-      if (value < root.data) {
-        root.left = recursiveDelete(root.left, value);
-      } else if (value > root.data) {
-        root.right = recursiveDelete(root.right, value);
-      } else {
-        // Case: Found the node to delete
-
-        // Case 1 & 2: No child or only one child
-        if (root.left === null) return root.right;
-        if (root.right === null) return root.left;
-
-        // Case 3: Node with two children
-        let succ = getSuccessor(root);
-        root.data = succ.data; // copy successor's value
-        root.right = recursiveDelete(root.right, succ.data); // delete successor node
-      }
-
-      return root;
+  _getSuccessor(node) {
+    node = node.right;
+    while (node !== null && node.left !== null) {
+      node = node.left;
     }
-
-    this.root = recursiveDelete(this.root, value); // ensure tree remains updated
+    return node;
   }
 
   find(value) {
-    function recursiveSearch(root, value) {
-      if (root === null || root.data === value) return root;
+    return this._find(this.root, value);
+  }
 
-      if (value > root.data) {
-        return recursiveSearch(root.right, value);
-      }
+  _find(node, value) {
+    if (node === null || node.data === value) return node;
 
-      return recursiveSearch(root.left, value);
+    if (value > root.data) {
+      return this._find(node.right, value);
     }
-    return recursiveSearch(this.root, value);
+
+    return this._find(node.left, value);
   }
 
   levelOrder(callback) {
@@ -172,7 +172,7 @@ class Tree {
     return this._height(node);
   }
 
-  // private helper to get treeHeight
+  // private helper to calculate tree height
   _height(node) {
     if (node === null) return -1;
     return 1 + Math.max(this._height(node.left), this._height(node.right));
@@ -182,14 +182,45 @@ class Tree {
     return this._depth(this.root, node, 0);
   }
 
-  _depth(currNode, targetNode, currDepth) {
-    if (currNode === null) return -1;
-    if (currNode === targetNode) return currDepth;
+  _depth(nodeNode, targetNode, nodeDepth) {
+    if (nodeNode === null) return -1;
+    if (nodeNode === targetNode) return nodeDepth;
 
-    let leftDepth = this._depth(currNode.left, targetNode, currDepth + 1);
+    let leftDepth = this._depth(nodeNode.left, targetNode, nodeDepth + 1);
     if (leftDepth !== -1) return leftDepth; // if found in left subtree, return the depth
 
-    return this._depth(currNode.right, targetNode, currDepth + 1); // check right subtree
+    return this._depth(nodeNode.right, targetNode, nodeDepth + 1); // check right subtree
+  }
+
+  isBalanced() {
+    return this._isBalanced(this.root);
+  }
+
+  _isBalanced(node) {
+    if (node === null) return true;
+
+    let leftHeight = this._height(node.left);
+    let rightHeight = this._height(node.right);
+
+    if (Math.abs(leftHeight - rightHeight) > 1) {
+      return false;
+    }
+
+    return this._isBalanced(node.left) && this._isBalanced(node.right);
+  }
+
+  rebalance() {
+    const array = [];
+    this._collectInOrder(this.root, array);
+    this.root = this.buildTree(array);
+  }
+
+  _collectInOrder(node, array) {
+    if (node === null) return;
+
+    this._collectInOrder(node.left, array);
+    array.push(node.data);
+    this._collectInOrder(node.right, array);
   }
 
   // private helper for recursion
@@ -221,31 +252,60 @@ const prettyPrint = (node, prefix = '', isLeft = true) => {
   }
 };
 
-// Example usage
-const myTree = new Tree([1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324]);
-const myShortTree = new Tree([1, 3, 4, 5, 7, 8, 9]);
+const randArray = () => {
+  let count = Math.floor(Math.random() * 20 + 1);
+  let array = [];
+  for (let i = 0; i < count; i++) {
+    array.push(Math.floor(Math.random() * 100));
+  }
+  return array;
+};
 
-// Testing
-// console.log(myTree.find(8));
-// myTree.insert(90);
-prettyPrint(myTree.root);
-// console.log('--------');
-// myTree.insert(2);
-// prettyPrint(myTree.root);
-// console.log('--------');
-// myTree.deleteItem(2);
-// prettyPrint(myTree.root);
-// console.log('--------');
-// myTree.deleteItem(4);
-// prettyPrint(myTree.root);
-// console.log('--------');
-myTree.levelOrderRecursive(myTree.printNode);
-// myTree.inOrder(myTree.printNode);
-// console.log('--------');
-// myTree.preOrder(myTree.printNode);
-// console.log('--------');
-// myTree.postOrder(myTree.printNode);
+// Driver
+const tree = new Tree(randArray());
+prettyPrint(tree.root);
+console.log(`Is tree balanced: ${tree.isBalanced()}`);
 console.log('--------');
-console.log(myTree.height(myTree.root));
+console.log('Level order:');
+tree.levelOrderRecursive(tree.printNode);
 console.log('--------');
-console.log(myTree.depth(myTree.root.left));
+console.log('In order:');
+tree.inOrder(tree.printNode);
+console.log('--------');
+console.log('Pre order:');
+tree.preOrder(tree.printNode);
+console.log('--------');
+console.log('Post order:');
+tree.postOrder(tree.printNode);
+console.log('--------');
+tree.insert(90);
+tree.insert(23);
+tree.insert(43);
+tree.insert(4);
+tree.insert(51);
+console.log('Inserted numbers: 4,23,43,51,90');
+console.log('--------');
+prettyPrint(tree.root);
+console.log('--------');
+console.log(`Is tree balanced: ${tree.isBalanced()}`);
+console.log('--------');
+console.log('Rebalancing...');
+tree.rebalance();
+console.log('--------');
+prettyPrint(tree.root);
+console.log('--------');
+console.log(`Is tree balanced: ${tree.isBalanced()}`);
+console.log('--------');
+console.log('Level order:');
+tree.levelOrderRecursive(tree.printNode);
+console.log('--------');
+console.log('In order:');
+tree.inOrder(tree.printNode);
+console.log('--------');
+console.log('Pre order:');
+tree.preOrder(tree.printNode);
+console.log('--------');
+console.log('Post order:');
+tree.postOrder(tree.printNode);
+console.log('--------');
+console.log(`Root node height: ${tree.height(tree.root)}`);
