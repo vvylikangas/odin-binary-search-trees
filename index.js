@@ -30,6 +30,7 @@ class Tree {
     return node;
   }
 
+  // add node to tree
   insert(value) {
     this.root = this._insert(this.root, value);
   }
@@ -46,6 +47,7 @@ class Tree {
     return node;
   }
 
+  // delete given node
   deleteItem(value) {
     this.root = this._deleteItem(this.root, value); // ensure tree remains updated
   }
@@ -73,6 +75,7 @@ class Tree {
     return node;
   }
 
+  // helper for _deleteItem
   _getSuccessor(node) {
     node = node.right;
     while (node !== null && node.left !== null) {
@@ -81,6 +84,7 @@ class Tree {
     return node;
   }
 
+  // search any value
   find(value) {
     return this._find(this.root, value);
   }
@@ -88,13 +92,15 @@ class Tree {
   _find(node, value) {
     if (node === null || node.data === value) return node;
 
-    if (value > root.data) {
+    if (value > node.data) {
       return this._find(node.right, value);
     }
 
     return this._find(node.left, value);
   }
 
+  // LEVEL ORDER
+  // iterative approach
   levelOrder(callback) {
     if (typeof callback !== 'function') {
       throw new Error('A callback function is required.');
@@ -109,6 +115,7 @@ class Tree {
     }
   }
 
+  // recursive
   levelOrderRecursive(callback) {
     if (typeof callback !== 'function') {
       throw new Error('A callback function is required.');
@@ -120,6 +127,17 @@ class Tree {
     }
   }
 
+  // helper for recursion level order
+  _processLevel(node, level, callback) {
+    if (node === null) return;
+    if (level === 0) callback(node);
+    else {
+      this._processLevel(node.left, level - 1, callback);
+      this._processLevel(node.right, level - 1, callback);
+    }
+  }
+
+  // IN ORDER
   inOrder(callback) {
     if (typeof callback !== 'function') {
       throw new Error('A callback function is required.');
@@ -136,6 +154,7 @@ class Tree {
     this._inOrder(node.right, callback);
   }
 
+  // PRE ORDER
   preOrder(callback) {
     if (typeof callback !== 'function') {
       throw new Error('A callback function is required.');
@@ -152,6 +171,7 @@ class Tree {
     this._preOrder(node.right, callback);
   }
 
+  // POST ORDER
   postOrder(callback) {
     if (typeof callback !== 'function') {
       throw new Error('A callback function is required.');
@@ -168,6 +188,12 @@ class Tree {
     callback(node);
   }
 
+  // function for order callbacks
+  printNode = (node) => {
+    console.log(node.data);
+  };
+
+  // number of edges in the longest path from given node to a leaf node
   height(node) {
     return this._height(node);
   }
@@ -178,6 +204,7 @@ class Tree {
     return 1 + Math.max(this._height(node.left), this._height(node.right));
   }
 
+  // number of edges in the path from given node to tree's root node
   depth(node) {
     return this._depth(this.root, node, 0);
   }
@@ -192,6 +219,7 @@ class Tree {
     return this._depth(nodeNode.right, targetNode, nodeDepth + 1); // check right subtree
   }
 
+  // check if tree is balanced
   isBalanced() {
     return this._isBalanced(this.root);
   }
@@ -209,12 +237,14 @@ class Tree {
     return this._isBalanced(node.left) && this._isBalanced(node.right);
   }
 
+  // rebalance tree after insertions/deletions
   rebalance() {
     const array = [];
     this._collectInOrder(this.root, array);
     this.root = this.buildTree(array);
   }
 
+  // helper for rebalancing
   _collectInOrder(node, array) {
     if (node === null) return;
 
@@ -222,21 +252,6 @@ class Tree {
     array.push(node.data);
     this._collectInOrder(node.right, array);
   }
-
-  // private helper for recursion
-  _processLevel(node, level, callback) {
-    if (node === null) return;
-    if (level === 0) callback(node);
-    else {
-      this._processLevel(node.left, level - 1, callback);
-      this._processLevel(node.right, level - 1, callback);
-    }
-  }
-
-  // callback function for levelOrder
-  printNode = (node) => {
-    console.log(node.data);
-  };
 }
 
 // helper function to visualize the tree
@@ -252,6 +267,9 @@ const prettyPrint = (node, prefix = '', isLeft = true) => {
   }
 };
 
+// Driver
+
+// create 1-20 numbers between 1 and 99
 const randArray = () => {
   let count = Math.floor(Math.random() * 20 + 1);
   let array = [];
@@ -261,7 +279,6 @@ const randArray = () => {
   return array;
 };
 
-// Driver
 const tree = new Tree(randArray());
 prettyPrint(tree.root);
 console.log(`Is tree balanced: ${tree.isBalanced()}`);
