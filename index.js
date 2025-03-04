@@ -115,7 +115,7 @@ class Tree {
     }
 
     let treeHeight = this._height(this.root);
-    for (let level = 1; level <= treeHeight; level++) {
+    for (let level = 0; level <= treeHeight; level++) {
       this._processLevel(this.root, level, callback);
     }
   }
@@ -168,16 +168,34 @@ class Tree {
     callback(node);
   }
 
+  height(node) {
+    return this._height(node);
+  }
+
   // private helper to get treeHeight
   _height(node) {
-    if (node === null) return 0;
+    if (node === null) return -1;
     return 1 + Math.max(this._height(node.left), this._height(node.right));
+  }
+
+  depth(node) {
+    return this._depth(this.root, node, 0);
+  }
+
+  _depth(currNode, targetNode, currDepth) {
+    if (currNode === null) return -1;
+    if (currNode === targetNode) return currDepth;
+
+    let leftDepth = this._depth(currNode.left, targetNode, currDepth + 1);
+    if (leftDepth !== -1) return leftDepth; // if found in left subtree, return the depth
+
+    return this._depth(currNode.right, targetNode, currDepth + 1); // check right subtree
   }
 
   // private helper for recursion
   _processLevel(node, level, callback) {
     if (node === null) return;
-    if (level === 1) callback(node);
+    if (level === 0) callback(node);
     else {
       this._processLevel(node.left, level - 1, callback);
       this._processLevel(node.right, level - 1, callback);
@@ -205,6 +223,7 @@ const prettyPrint = (node, prefix = '', isLeft = true) => {
 
 // Example usage
 const myTree = new Tree([1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324]);
+const myShortTree = new Tree([1, 3, 4, 5, 7, 8, 9]);
 
 // Testing
 // console.log(myTree.find(8));
@@ -220,10 +239,13 @@ prettyPrint(myTree.root);
 // myTree.deleteItem(4);
 // prettyPrint(myTree.root);
 // console.log('--------');
-// myTree.levelOrder(myTree.printNode);
-myTree.inOrder(myTree.printNode);
-console.log('--------');
-myTree.preOrder(myTree.printNode);
-console.log('--------');
-myTree.postOrder(myTree.printNode);
+myTree.levelOrderRecursive(myTree.printNode);
+// myTree.inOrder(myTree.printNode);
 // console.log('--------');
+// myTree.preOrder(myTree.printNode);
+// console.log('--------');
+// myTree.postOrder(myTree.printNode);
+console.log('--------');
+console.log(myTree.height(myTree.root));
+console.log('--------');
+console.log(myTree.depth(myTree.root.left));
